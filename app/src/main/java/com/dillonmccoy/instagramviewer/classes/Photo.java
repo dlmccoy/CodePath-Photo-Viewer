@@ -33,12 +33,6 @@ public class Photo {
             caption = captionJson.getString("text");
 
             // Get the likes.
-//            JSONObject likes = photoJson.getJSONObject("likes");
-//            if (likes != null) {
-//                likesCount = photoJson.getJSONObject("likes").getInt("count");
-//            } else {
-//                likesCount = 0;
-//            }
             likesCount = photoJson.getJSONObject("likes").getInt("count");
 
             // Get the created time.

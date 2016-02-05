@@ -1,5 +1,6 @@
 package com.dillonmccoy.instagramviewer;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Photo> mPhotos;
     ListView lvPhotos;
 
+    private SwipeRefreshLayout swipeContainer;
+
+
     static final String CLIENT_ID = "e05c462ebd86446ea48a5af73769b602";
     static final String API_POPULAR_URL = "https://api.instagram.com/v1/media/popular?client_id=" + CLIENT_ID;
 
@@ -34,6 +38,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchPopularPhotos();
+            }
+        });
+
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
 
         // Set up the photos ArrayList and the ArrayAdapter for the ListView.
         mPhotos = new ArrayList<>();
@@ -52,17 +73,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.i("DEBUG", response.toString());
+                aPhotos.clear();
                 try {
                     JSONArray photos = response.getJSONArray("data");
                     for (int i = 0; i < photos.length(); i++) {
                         JSONObject photoJson = (JSONObject) photos.get(i);
 
-                        mPhotos.add(new Photo(photoJson));
+                        aPhotos.add(new Photo(photoJson));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                aPhotos.notifyDataSetChanged();
+//                aPhotos.notifyDataSetChanged();
+                swipeContainer.setRefreshing(false);
             }
 
             @Override
